@@ -1,4 +1,4 @@
-﻿using Kanayri.Application.Commands;
+﻿using Kanayri.Application.Commands.Products;
 using Kanayri.Application.Persistance;
 using Kanayri.Domain.Product;
 using MediatR;

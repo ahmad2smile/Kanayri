@@ -1,8 +1,7 @@
-﻿using Kanayri.Domain.Product;
+﻿using System;
 using Microsoft.EntityFrameworkCore;
-using System;
 
-namespace Kanayri.Application.Persistance
+namespace Kanayri.Persistence
 {
     public class ApplicationContext: DbContext
     {
@@ -10,16 +9,16 @@ namespace Kanayri.Application.Persistance
         {
         }
 
-        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductModel> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new ProductEntityConfiguration());
 
-            modelBuilder.Entity<Product>()
+            modelBuilder.Entity<ProductModel>()
                 .HasData(
-                    new Product { Id = Guid.NewGuid(), Name = "iPhone 6 Plus"},
-                    new Product { Id = Guid.NewGuid(), Name = "iPhone 7 Plus"}
+                    new ProductModel { Id = Guid.NewGuid(), Name = "iPhone 6 Plus"},
+                    new ProductModel { Id = Guid.NewGuid(), Name = "iPhone 7 Plus"}
                 );
         }
     }

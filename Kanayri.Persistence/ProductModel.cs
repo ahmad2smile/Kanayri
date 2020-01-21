@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Kanayri.Domain.Product
+namespace Kanayri.Persistence
 {
-    public class Product
+    public class ProductModel
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

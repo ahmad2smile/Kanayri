@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Kanayri.Domain\Kanayri.Domain.csproj" />
+    <ProjectReference Include="..\Kanayri.Persistence\Kanayri.Persistence.csproj" />
   </ItemGroup>
 
 

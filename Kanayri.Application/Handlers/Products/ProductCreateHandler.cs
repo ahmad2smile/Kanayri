@@ -1,13 +1,13 @@
 ﻿using Kanayri.Application.Commands.Products;
-using Kanayri.Application.Persistance;
 using Kanayri.Domain.Product;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
+using Kanayri.Persistence;
 
 namespace Kanayri.Application.Handlers.Products
 {
-    public class ProductCreateHandler : IRequestHandler<ProductCreateCommand, Product>
+    public class ProductCreateHandler : IRequestHandler<ProductCreateCommand, ProductModel>
     {
         private readonly ApplicationContext _context;
 
@@ -16,13 +16,13 @@ namespace Kanayri.Application.Handlers.Products
             _context = context;
         }
 
-        public async Task<Product> Handle(ProductCreateCommand request, CancellationToken cancellationToken)
+        public async Task<ProductModel> Handle(ProductCreateCommand request, CancellationToken cancellationToken)
         {
-            var newProduct = new Product { Name = request.Name };
+            var newProduct = new ProductModel { Name = request.Name };
 
-            var result = await _context.Products.AddAsync(newProduct);
+            var result = await _context.Products.AddAsync(newProduct, cancellationToken);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return result.Entity;
         }

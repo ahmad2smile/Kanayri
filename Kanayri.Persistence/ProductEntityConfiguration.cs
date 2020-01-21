@@ -1,12 +1,11 @@
-﻿using Kanayri.Domain.Product;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Kanayri.Application.Persistance
+namespace Kanayri.Persistence
 {
-    public class ProductEntityConfiguration : IEntityTypeConfiguration<Product>
+    public class ProductEntityConfiguration : IEntityTypeConfiguration<ProductModel>
     {
-        public void Configure(EntityTypeBuilder<Product> builder)
+        public void Configure(EntityTypeBuilder<ProductModel> builder)
         {
             builder.ToTable("products");
 

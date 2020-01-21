@@ -1,8 +1,8 @@
-using Kanayri.Application.Persistance;
+using Kanayri.Domain;
+using Kanayri.Persistence;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,7 +21,8 @@ namespace Kanayri.Application
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMediatR(typeof(Startup).Assembly);
-            services.AddDbContext<ApplicationContext>(options => options.UseSqlServer(Configuration["ConnectionString:KanayriDb"]));
+            services.ConfigurePersistence(Configuration["ConnectionString:KanayriDb"]);
+            services.ConfigureDomain();
             services.AddControllers();
         }
 

@@ -2,11 +2,12 @@
 using System.Threading.Tasks;
 using Kanayri.Domain.Product.Queries;
 using Kanayri.Persistence;
+using Kanayri.Persistence.Models;
 using MediatR;
 
 namespace Kanayri.Domain.Product
 {
-    public class ProductQueryHandlers: IRequestHandler<ProductGetQuery, Persistence.ProductModel>
+    public class ProductQueryHandlers: IRequestHandler<ProductGetQuery, ProductModel>
     {
         private readonly ApplicationContext _context;
 
@@ -15,7 +16,7 @@ namespace Kanayri.Domain.Product
             _context = context;
         }
 
-        public async Task<Persistence.ProductModel> Handle(ProductGetQuery request, CancellationToken cancellationToken)
+        public async Task<ProductModel> Handle(ProductGetQuery request, CancellationToken cancellationToken)
         {
             return await _context.Products.FindAsync(request.Id); // Convert ValueTask to Task
         }

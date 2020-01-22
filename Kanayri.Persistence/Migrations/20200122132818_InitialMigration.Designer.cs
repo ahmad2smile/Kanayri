@@ -4,13 +4,16 @@ using Kanayri.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Kanayri.Application.Migrations
+namespace Kanayri.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20200122132818_InitialMigration")]
+    partial class InitialMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -18,7 +21,7 @@ namespace Kanayri.Application.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Kanayri.Domain.ProductModel.ProductModel", b =>
+            modelBuilder.Entity("Kanayri.Persistence.Models.ProductModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -28,20 +31,25 @@ namespace Kanayri.Application.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("Price")
+                        .HasColumnType("Money");
+
                     b.HasKey("Id");
 
-                    b.ToTable("products");
+                    b.ToTable("Products");
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("e93eb40d-62bc-4541-bca3-d3e3c382f66b"),
-                            Name = "iPhone 6 Plus"
+                            Id = new Guid("84a5fd20-b59f-407e-949b-7704d0586ef0"),
+                            Name = "iPhone 6 Plus",
+                            Price = 600m
                         },
                         new
                         {
-                            Id = new Guid("27077b96-c6d9-4703-9e8f-acfc59b75566"),
-                            Name = "iPhone 7 Plus"
+                            Id = new Guid("1e258593-ba30-4202-aaf4-74b514631ee1"),
+                            Name = "iPhone 7 Plus",
+                            Price = 700m
                         });
                 });
 #pragma warning restore 612, 618

@@ -1,4 +1,5 @@
 ﻿using System;
+using Kanayri.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kanayri.Persistence
@@ -13,12 +14,10 @@ namespace Kanayri.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new ProductEntityConfiguration());
-
             modelBuilder.Entity<ProductModel>()
                 .HasData(
-                    new ProductModel { Id = Guid.NewGuid(), Name = "iPhone 6 Plus"},
-                    new ProductModel { Id = Guid.NewGuid(), Name = "iPhone 7 Plus"}
+                    new ProductModel { Id = Guid.NewGuid(), Name = "iPhone 6 Plus", Price = 600 },
+                    new ProductModel { Id = Guid.NewGuid(), Name = "iPhone 7 Plus", Price = 700 }
                 );
         }
     }

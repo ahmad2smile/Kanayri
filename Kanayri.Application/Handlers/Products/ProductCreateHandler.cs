@@ -1,9 +1,9 @@
 ﻿using Kanayri.Application.Commands.Products;
-using Kanayri.Domain.Product;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 using Kanayri.Persistence;
+using Kanayri.Persistence.Models;
 
 namespace Kanayri.Application.Handlers.Products
 {

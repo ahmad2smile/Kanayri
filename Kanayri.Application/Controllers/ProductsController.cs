@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using Kanayri.Domain.Product.Queries;
-using Kanayri.Persistence;
+using Kanayri.Persistence.Models;
 
 namespace Kanayri.Application.Controllers
 {

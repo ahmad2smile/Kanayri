@@ -1,9 +1,10 @@
 ﻿using System;
+using Kanayri.Persistence.Models;
 using MediatR;
 
 namespace Kanayri.Domain.Product.Queries
 {
-    public class ProductGetQuery: IRequest<Persistence.ProductModel>
+    public class ProductGetQuery: IRequest<ProductModel>
     {
         public Guid Id { get; set; }
 

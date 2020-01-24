@@ -1,23 +1,17 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Kanayri.Domain.Product.Commands;
-using Kanayri.Domain.Product.Events;
+﻿using Kanayri.Domain.Product.Events;
 
 namespace Kanayri.Domain.Product
 {
-    public class Product: Aggregate, IEventHandler<ProductCreatedEvent>
+    public class Product: Aggregate, IEventSubscriber<ProductCreatedEvent>
     {
         public string Name { get; private set; }
         public decimal Price { get; private set; }
 
-        public Task Handle(ProductCreatedEvent e, CancellationToken cancellationToken)
+        public void Handle(ProductCreatedEvent e)
         {
             Id = e.Id;
             Name = e.Name;
             Price = e.Price;
-
-            return Task.CompletedTask;
         }
     }
 }

@@ -39,14 +39,19 @@ namespace Kanayri.Application.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct([FromBody] ProductCreateDto product)
         {
+            var newProductId = Guid.NewGuid();
             var command = new ProductCreateCommand
             {
-                Id = Guid.NewGuid(),
+                Id = newProductId,
                 Name = product.Name,
                 Price = product.Price
             };
 
-            return Ok(await _mediator.Send(command));
+            await _mediator.Publish(command); // Publish not Send as We can't read Data with Command only with Query
+
+            // TODO: Query with Id and send back Result
+
+            return await GetProduct(newProductId.ToString());
         }
     }
 }

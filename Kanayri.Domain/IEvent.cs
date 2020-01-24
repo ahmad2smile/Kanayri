@@ -1,9 +1,6 @@
-﻿using MediatR;
-
-namespace Kanayri.Domain
+﻿namespace Kanayri.Domain
 {
-    // Only required to run Handler (abstraction for manual Reflection based execution of Handlers)
-    public interface IEvent: INotification
+    public interface IEvent
     {
     }
 }

@@ -11,6 +11,8 @@ namespace Kanayri.Persistence
         }
 
         public DbSet<ProductModel> Products { get; set; }
+        public DbSet<AggregateModel> Aggregate { get; set; }
+        public DbSet<EventModel> Events { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

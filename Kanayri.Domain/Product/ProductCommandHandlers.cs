@@ -4,31 +4,44 @@ using Kanayri.Domain.Product.Commands;
 using Kanayri.Domain.Product.Events;
 using Kanayri.Persistence;
 using Kanayri.Persistence.Models;
-using MediatR;
 
 namespace Kanayri.Domain.Product
 {
-    public class ProductCommandHandlers: ICommandHandler<ProductCreateCommand>
+    public class ProductCommandHandlers : ICommandHandler<ProductCreateCommand>
     {
+        private readonly IEventRepository _repository;
         private readonly ApplicationContext _context;
-        private readonly IMediator _mediator;
 
-        public ProductCommandHandlers(ApplicationContext context, IMediator mediator)
+        public ProductCommandHandlers(IEventRepository repository, ApplicationContext context)
         {
+            _repository = repository;
             _context = context;
-            _mediator = mediator;
         }
+
         public async Task Handle(ProductCreateCommand command, CancellationToken cancellationToken)
         {
-            // TODO: Do Event Sourcing with saving the Event here only
-            await _context.Products.AddAsync(new ProductModel
-            {
-                Id = command.Id,
-                Name = command.Name,
-                Price = command.Price
-            }, cancellationToken);
+            // TODO: Get By Id
+            var aggregate = await _repository.GetAggregateByType<Product>();
 
-            await _mediator.Publish(new ProductCreatedEvent(command.Id, command.Name, command.Price), cancellationToken);
+            var productCreatedEvent =
+                new ProductCreatedEvent(command.Id, command.Name, command.Price);
+
+            aggregate.Handle(productCreatedEvent);
+
+            await _repository.SaveAggregateEvent(aggregate, productCreatedEvent);
+
+            // TODO: Use Mapper
+            var product = new ProductModel
+            {
+                Id = aggregate.Id,
+                Name = aggregate.Name,
+                Price = aggregate.Price
+            };
+
+            // TODO: Find better way to Update ReadModel
+            await _context.Products.AddAsync(product, cancellationToken);
+
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

@@ -6,7 +6,6 @@ namespace Kanayri.Persistence.Models
 {
     public class ProductModel
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
         [Required]

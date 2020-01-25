@@ -3,11 +3,10 @@ using System.Threading.Tasks;
 using Kanayri.Domain.Product.Queries;
 using Kanayri.Persistence;
 using Kanayri.Persistence.Models;
-using MediatR;
 
 namespace Kanayri.Domain.Product
 {
-    public class ProductQueryHandlers: IRequestHandler<ProductGetQuery, ProductModel>
+    public class ProductQueryHandlers : IQueryHandler<ProductGetQuery, ProductModel>
     {
         private readonly ApplicationContext _context;
 

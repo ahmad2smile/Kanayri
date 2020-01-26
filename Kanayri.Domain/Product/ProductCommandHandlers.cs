@@ -2,20 +2,19 @@
 using System.Threading.Tasks;
 using Kanayri.Domain.Product.Commands;
 using Kanayri.Domain.Product.Events;
-using Kanayri.Persistence;
-using Kanayri.Persistence.Models;
+using MediatR;
 
 namespace Kanayri.Domain.Product
 {
     public class ProductCommandHandlers : ICommandHandler<ProductCreateCommand>
     {
         private readonly IEventRepository _repository;
-        private readonly ApplicationContext _context;
+        private readonly IMediator _mediator;
 
-        public ProductCommandHandlers(IEventRepository repository, ApplicationContext context)
+        public ProductCommandHandlers(IEventRepository repository, IMediator mediator)
         {
             _repository = repository;
-            _context = context;
+            _mediator = mediator;
         }
 
         public async Task Handle(ProductCreateCommand command, CancellationToken cancellationToken)
@@ -30,18 +29,7 @@ namespace Kanayri.Domain.Product
 
             await _repository.SaveAggregateEvent(aggregate, productCreatedEvent);
 
-            // TODO: Use Mapper
-            var product = new ProductModel
-            {
-                Id = aggregate.Id,
-                Name = aggregate.Name,
-                Price = aggregate.Price
-            };
-
-            // TODO: Find better way to Update ReadModel
-            await _context.Products.AddAsync(product, cancellationToken);
-
-            await _context.SaveChangesAsync(cancellationToken);
+            await _mediator.Publish(productCreatedEvent, cancellationToken);
         }
     }
 }

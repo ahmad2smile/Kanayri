@@ -49,8 +49,6 @@ namespace Kanayri.Application.Controllers
 
             await _mediator.Publish(command); // Publish not Send as We can't read Data with Command only with Query
 
-            // TODO: Query with Id and send back Result
-
             return await GetProduct(newProductId.ToString());
         }
     }

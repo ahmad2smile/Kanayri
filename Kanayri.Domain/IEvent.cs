@@ -1,6 +1,8 @@
-﻿namespace Kanayri.Domain
+﻿using MediatR;
+
+namespace Kanayri.Domain
 {
-    public interface IEvent
+    public interface IEvent: INotification
     {
     }
 }

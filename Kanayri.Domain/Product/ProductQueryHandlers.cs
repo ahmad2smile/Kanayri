@@ -15,9 +15,9 @@ namespace Kanayri.Domain.Product
             _context = context;
         }
 
-        public async Task<ProductModel> Handle(ProductGetQuery request, CancellationToken cancellationToken)
+        public async Task<ProductModel> Handle(ProductGetQuery query, CancellationToken cancellationToken)
         {
-            return await _context.Products.FindAsync(request.Id); // Convert ValueTask to Task
+            return await _context.Products.FindAsync(query.Id); // Convert ValueTask to Task
         }
     }
 }

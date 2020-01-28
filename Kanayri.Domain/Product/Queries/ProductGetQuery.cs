@@ -5,7 +5,7 @@ namespace Kanayri.Domain.Product.Queries
 {
     public class ProductGetQuery : IQuery<ProductModel>
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; }
 
         public ProductGetQuery(Guid id)
         {

@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kanayri.Domain.Product;
 using Kanayri.Domain.Product.Commands;
+using Kanayri.Domain.Product.Queries;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
@@ -24,6 +25,7 @@ namespace Kanayri.Tests.Domain
                 Price = 500
             };
 
+
             await handler.Handle(command, new CancellationToken(false));
 
             var aggregates = await context.Aggregate.ToListAsync();
@@ -31,6 +33,22 @@ namespace Kanayri.Tests.Domain
 
             Assert.Single(aggregates);
             Assert.Single(events);
+        }
+
+        [Fact]
+        public async Task QueryProduct()
+        {
+            var (context, _, _) = TestSetup.Init();
+
+            var handler = new ProductQueryHandlers(context);
+
+            var firstProduct = await context.Products.FirstOrDefaultAsync();
+
+            var query = new ProductGetQuery(firstProduct.Id);
+
+            var product = await handler.Handle(query, CancellationToken.None);
+
+            Assert.Equal(firstProduct.Id, product.Id);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Reflection;
 
 namespace Kanayri.Domain
 {
@@ -12,17 +13,29 @@ namespace Kanayri.Domain
 
         public void Rehydrate(IEnumerable events)
         {
-            foreach (var e in events)
+            try
             {
-                var method = GetType().GetMethod(nameof(ApplyEvent));
+                var applyMethod = GetType().BaseType?
+                    .GetMethod(nameof(ApplyEvent), BindingFlags.NonPublic | BindingFlags.Instance);
 
-                if (method == null)
+                if (applyMethod == null)
                 {
-                    throw new InvalidOperationException( $"Aggregate {GetType().Name} doesn't have Handler for event {e.GetType().Name}");
+                    throw new InvalidOperationException($"ApplyEvent method not found in base class of {GetType().Name}");
                 }
 
-                method.MakeGenericMethod(e.GetType())
-                    .Invoke(this, new[] {e});
+                foreach (var e in events)
+                {
+                    applyMethod
+                        .MakeGenericMethod(e.GetType())
+                        .Invoke(this, new[] {e});
+                }
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException != null)
+                {
+                    throw e.InnerException;
+                }
             }
         }
 

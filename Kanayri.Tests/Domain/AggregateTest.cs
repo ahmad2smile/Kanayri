@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Kanayri.Domain;
-using Moq;
 using Xunit;
 
 namespace Kanayri.Tests.Domain
 {
     public class MockEvent : IEvent
     {
+        public DateTime FiredAt { get; } = DateTime.UtcNow;
     }
 
     public class MockAggregate : Aggregate

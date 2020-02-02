@@ -14,5 +14,6 @@ namespace Kanayri.Domain.Product.Events
         public Guid Id { get; }
         public string Name { get; }
         public decimal Price { get; }
+        public DateTime FiredAt { get; } = DateTime.UtcNow;
     }
 }

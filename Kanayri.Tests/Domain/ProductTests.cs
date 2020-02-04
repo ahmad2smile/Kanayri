@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Kanayri.Domain.Product;
 using Kanayri.Domain.Product.Commands;
+using Kanayri.Domain.Product.Events;
 using Kanayri.Domain.Product.Queries;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -38,9 +40,9 @@ namespace Kanayri.Tests.Domain
         [Fact]
         public async Task QueryProduct()
         {
-            var (context, _, _) = TestSetup.Init();
+            var (context, eventRepository, _) = TestSetup.Init();
 
-            var handler = new ProductQueryHandlers(context);
+            var handler = new ProductQueryHandlers(context, eventRepository);
 
             var firstProduct = await context.Products.FirstOrDefaultAsync();
 
@@ -78,9 +80,56 @@ namespace Kanayri.Tests.Domain
 
             await handler.Handle(priceChangeCommand, CancellationToken.None);
 
-            var agg = await repository.GetHydratedAggregate<Kanayri.Domain.Product.Product>(id);
+            var agg = await repository.GetHydratedAggregate<Kanayri.Domain.Product.Product>(id, CancellationToken.None);
 
             Assert.Equal(newPrice, agg.Price);
+        }
+
+        [Fact]
+        public async Task QueryChangePrice()
+        {
+            var (_, repository, mediator) = TestSetup.Init();
+
+            var handler = new ProductCommandHandlers(repository, mediator);
+
+            var id = Guid.NewGuid();
+
+            const int price1 = 500;
+            const int price2 = 600;
+            const int price3 = 700;
+
+            var productCreateCommand = new ProductCreateCommand
+            {
+                Id = id,
+                Name = "mock name",
+                Price = price1
+            };
+
+            await handler.Handle(productCreateCommand, CancellationToken.None);
+
+            var priceChange1 = new ProductChangePriceCommand
+            {
+                ProductId = id,
+                Price = price2
+            };
+
+            await handler.Handle(priceChange1, CancellationToken.None);
+
+            var priceChange2 = new ProductChangePriceCommand
+            {
+                ProductId = id,
+                Price = price3
+            };
+
+            await handler.Handle(priceChange2, CancellationToken.None);
+
+            var events = await repository.GetEventsOfType<ProductPriceChangedEvent>(id, CancellationToken.None);
+
+            var changedEvents = events as ProductPriceChangedEvent[] ?? events.ToArray();
+
+            Assert.Equal(2, changedEvents.Count());
+            Assert.Equal(price2, changedEvents.ElementAt(0).Price);
+            Assert.Equal(price3, changedEvents.ElementAt(1).Price);
         }
     }
 }

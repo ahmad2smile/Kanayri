@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Kanayri.Persistence;
 using Kanayri.Persistence.Models;
@@ -18,14 +20,23 @@ namespace Kanayri.Domain
             _context = context;
         }
 
-        public async Task<TAggregate> GetHydratedAggregate<TAggregate>(Guid id) where TAggregate : IAggregate, new()
+        public async Task<IEnumerable<TEvent>> GetEventsOfType<TEvent>(Guid id, CancellationToken cancellationToken)
+        {
+            var events = await _context.Events.AsNoTracking()
+                .Where(e => e.AggregateId == id && e.Type == typeof(TEvent).AssemblyQualifiedName)
+                .ToListAsync(cancellationToken);
+
+            return events.Select(e => DeserializeEvent<TEvent>(e.Data)); // TODO: Try before AsyncList
+        }
+
+        public async Task<TAggregate> GetHydratedAggregate<TAggregate>(Guid id, CancellationToken cancellationToken) where TAggregate : IAggregate, new()
         {
             var aggregate = new TAggregate { Id = id };
 
 
             var events = await _context.Events.AsNoTracking()
                 .Where(e => e.AggregateId == id)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             aggregate.Rehydrate(events.Select(e =>
             {
@@ -40,7 +51,7 @@ namespace Kanayri.Domain
             return aggregate;
         }
 
-        public async Task<bool> SaveAggregateEvent<TAggregate>(TAggregate aggregate, IEvent e) where TAggregate : IAggregate
+        public async Task<bool> SaveAggregateEvent<TAggregate>(TAggregate aggregate, IEvent e, CancellationToken cancellationToken) where TAggregate : IAggregate
         {
             var agg = await _context.Aggregate.FindAsync(aggregate.Id)
                       ?? await AddAggregate<TAggregate>(aggregate.Id);
@@ -52,7 +63,7 @@ namespace Kanayri.Domain
                 AggregateId = aggregate.Id
             };
 
-            await _context.Events.AddAsync(eventModel);
+            await _context.Events.AddAsync(eventModel, cancellationToken);
 
             agg.TotalEvents = aggregate.TotalEvents;
 
@@ -60,7 +71,7 @@ namespace Kanayri.Domain
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
 
                 return true;
             }

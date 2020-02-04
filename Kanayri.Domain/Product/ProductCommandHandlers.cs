@@ -28,20 +28,20 @@ namespace Kanayri.Domain.Product
 
             aggregate.Handle(productCreatedEvent);
 
-            await _repository.SaveAggregateEvent(aggregate, productCreatedEvent);
+            await _repository.SaveAggregateEvent(aggregate, productCreatedEvent, cancellationToken);
 
             await _mediator.Publish(productCreatedEvent, cancellationToken);
         }
 
         public async Task Handle(ProductChangePriceCommand command, CancellationToken cancellationToken)
         {
-            var aggregate = await _repository.GetHydratedAggregate<Product>(command.ProductId);
+            var aggregate = await _repository.GetHydratedAggregate<Product>(command.ProductId, cancellationToken);
 
             var priceChangedEvent = new ProductPriceChangedEvent(command.ProductId, command.Price);
 
             aggregate.Handle(priceChangedEvent);
 
-            await _repository.SaveAggregateEvent(aggregate, priceChangedEvent);
+            await _repository.SaveAggregateEvent(aggregate, priceChangedEvent, cancellationToken);
 
             await _mediator.Publish(priceChangedEvent, cancellationToken);
         }

@@ -6,7 +6,9 @@ using MediatR;
 
 namespace Kanayri.Domain.Product
 {
-    public class ProductCommandHandlers : ICommandHandler<ProductCreateCommand>
+    public class ProductCommandHandlers : 
+        ICommandHandler<ProductCreateCommand>,
+        ICommandHandler<ProductChangePriceCommand>
     {
         private readonly IEventRepository _repository;
         private readonly IMediator _mediator;
@@ -19,8 +21,7 @@ namespace Kanayri.Domain.Product
 
         public async Task Handle(ProductCreateCommand command, CancellationToken cancellationToken)
         {
-            // TODO: Get By Id
-            var aggregate = await _repository.GetAggregateByType<Product>();
+            var aggregate = new Product();
 
             var productCreatedEvent =
                 new ProductCreatedEvent(command.Id, command.Name, command.Price);
@@ -30,6 +31,19 @@ namespace Kanayri.Domain.Product
             await _repository.SaveAggregateEvent(aggregate, productCreatedEvent);
 
             await _mediator.Publish(productCreatedEvent, cancellationToken);
+        }
+
+        public async Task Handle(ProductChangePriceCommand command, CancellationToken cancellationToken)
+        {
+            var aggregate = await _repository.GetHydratedAggregate<Product>(command.ProductId);
+
+            var priceChangedEvent = new ProductPriceChangedEvent(command.ProductId, command.Price);
+
+            aggregate.Handle(priceChangedEvent);
+
+            await _repository.SaveAggregateEvent(aggregate, priceChangedEvent);
+
+            await _mediator.Publish(priceChangedEvent, cancellationToken);
         }
     }
 }

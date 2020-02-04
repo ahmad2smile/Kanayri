@@ -23,5 +23,22 @@ namespace Kanayri.Tests.Domain.Product
             Assert.Equal(name, agg.Name);
             Assert.Equal(price, agg.Price);
         }
+
+        [Fact]
+        public void HandlePriceChangedEventOnAgg()
+        {
+            var id = Guid.NewGuid();
+
+            var productCreatedEvent = new ProductCreatedEvent(id, "mock name", 500);
+
+            var agg = new Kanayri.Domain.Product.Product();
+            agg.Handle(productCreatedEvent);
+
+            const int newPrice = 600;
+            var priceChangedEvent = new ProductPriceChangedEvent(id, newPrice);
+            agg.Handle(priceChangedEvent);
+
+            Assert.Equal(newPrice, agg.Price);
+        }
     }
 }

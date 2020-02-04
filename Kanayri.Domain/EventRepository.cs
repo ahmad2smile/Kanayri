@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Kanayri.Persistence;
 using Kanayri.Persistence.Models;
@@ -17,56 +18,38 @@ namespace Kanayri.Domain
             _context = context;
         }
 
-        private async Task<AggregateModel> AddAggregate<TAggregate>(Guid id)
-        {
-            var result = await _context.Aggregate.AddAsync(new AggregateModel
-            {
-                Id = id,
-                Type = typeof(TAggregate).AssemblyQualifiedName,
-                TotalEvents = 0
-            });
-
-            await _context.SaveChangesAsync();
-
-            return result.Entity;
-        }
-
         public async Task<TAggregate> GetHydratedAggregate<TAggregate>(Guid id) where TAggregate : IAggregate, new()
         {
-            var aggregate = new TAggregate { AggregateId = id };
+            var aggregate = new TAggregate { Id = id };
 
 
             var events = await _context.Events.AsNoTracking()
                 .Where(e => e.AggregateId == id)
                 .ToListAsync();
 
-            aggregate.Rehydrate(events.Select(e => DeserializeEvent(e.Type, e.Data)));
+            aggregate.Rehydrate(events.Select(e =>
+            {
+                var type = Type.GetType(e.Type);
+
+                return GetType()
+                    .GetMethod(nameof(DeserializeEvent), BindingFlags.NonPublic | BindingFlags.Static)?
+                    .MakeGenericMethod(type)
+                    .Invoke(this, new object[] { e.Data });
+            }));
 
             return aggregate;
         }
 
-        public async Task<TAggregate> GetAggregateByType<TAggregate>() where TAggregate : IAggregate, new()
-        {
-            var aggregateType = typeof(TAggregate).AssemblyQualifiedName;
-
-            var agg = await _context.Aggregate.AsNoTracking()
-                                     .Where(e => e.Type == aggregateType)
-                                     .FirstOrDefaultAsync()
-                                 ?? await AddAggregate<TAggregate>(Guid.NewGuid());
-
-            return await GetHydratedAggregate<TAggregate>(agg.Id);
-        }
-
         public async Task<bool> SaveAggregateEvent<TAggregate>(TAggregate aggregate, IEvent e) where TAggregate : IAggregate
         {
-            var agg = await _context.Aggregate.FindAsync(aggregate.AggregateId)
-                      ?? await AddAggregate<TAggregate>(aggregate.AggregateId);
+            var agg = await _context.Aggregate.FindAsync(aggregate.Id)
+                      ?? await AddAggregate<TAggregate>(aggregate.Id);
 
             var eventModel = new EventModel
             {
                 Data = SerializeEvent(e),
                 Type = e.GetType().AssemblyQualifiedName,
-                AggregateId = aggregate.AggregateId
+                AggregateId = aggregate.Id
             };
 
             await _context.Events.AddAsync(eventModel);
@@ -89,18 +72,28 @@ namespace Kanayri.Domain
             }
         }
 
+        private async Task<AggregateModel> AddAggregate<TAggregate>(Guid id)
+        {
+            var result = await _context.Aggregate.AddAsync(new AggregateModel
+            {
+                Id = id,
+                Type = typeof(TAggregate).AssemblyQualifiedName,
+                TotalEvents = 0
+            });
+
+            await _context.SaveChangesAsync();
+
+            return result.Entity;
+        }
+
         private static string SerializeEvent(object obj)
         {
             return JsonConvert.SerializeObject(obj);
         }
 
-        private object DeserializeEvent(string typeName, string data)
+        private static TEvent DeserializeEvent<TEvent>(string data)
         {
-            var type = Type.GetType(typeName);
-
-            return typeof(JsonConvert).GetMethod(nameof(JsonConvert.DeserializeObject))
-                ?.MakeGenericMethod(type)
-                .Invoke(this, new object[] { data });
+            return JsonConvert.DeserializeObject<TEvent>(data);
         }
     }
 }

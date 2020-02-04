@@ -5,7 +5,7 @@ namespace Kanayri.Domain
 {
     public interface IAggregate
     {
-        Guid AggregateId { get; set; }
+        Guid Id { get; set; }
         int TotalEvents { get; set; }
         
         void Rehydrate(IEnumerable events);

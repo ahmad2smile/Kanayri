@@ -6,9 +6,7 @@ namespace Kanayri.Domain
 {
     public abstract class Aggregate : IAggregate
     {
-        public Guid AggregateId { get; set; }
-
-        public Guid Id { get; protected set; }
+        public Guid Id { get; set; }
         public int TotalEvents { get; set; }
 
         public void Rehydrate(IEnumerable events)

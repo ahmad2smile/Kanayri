@@ -5,7 +5,9 @@ using Kanayri.Persistence.Models;
 
 namespace Kanayri.Domain.Product
 {
-    public class ProductReadModel: IEventSubscriber<ProductCreatedEvent>
+    public class ProductReadModel: 
+        IEventSubscriber<ProductCreatedEvent>,
+        IEventSubscriber<ProductPriceChangedEvent>
     {
         private readonly ApplicationContext _context;
 
@@ -27,6 +29,21 @@ namespace Kanayri.Domain.Product
             {
                 await _context.Products.AddAsync(product);
                 await _context.SaveChangesAsync();
+            });
+        }
+
+        public void Handle(ProductPriceChangedEvent e)
+        {
+            Task.Run(async () =>
+            {
+                var product = await _context.Products.FindAsync(e.ProductId);
+
+                if (product != null)
+                {
+                    product.Price = e.Price;
+
+                    await _context.SaveChangesAsync();
+                }
             });
         }
     }

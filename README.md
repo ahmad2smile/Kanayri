@@ -1,3 +1,5 @@
+⚠️ I realized now that I've made alot of mistakes in this repo, especially regarding **DDD** and **Clean Architechture**. Please take it with a grain of salt.
+
 # Kanayri
 
 eCommerce Store API based on DDD &amp; CQRS with Event Sourcing
